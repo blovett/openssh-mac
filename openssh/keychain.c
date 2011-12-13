@@ -593,12 +593,12 @@ keychain_read_passphrase(const char *filename, int oAskPassGUI, int oRequireKeyC
 	    CFSTR("/System/Library/CoreServices/"), kCFURLPOSIXPathStyle, true))
 	    != NULL && (bundle = CFBundleCreate(NULL, bundle_url)) != NULL &&
 	    (promptTemplate = CFCopyLocalizedStringFromTableInBundle(
-	    CFSTR("Enter your password for the SSH key \"%@\"."),
+	    CFSTR("Enter your passphrase for the SSH key \"%@\"."),
 	    CFSTR("OpenSSH"), bundle, "Text of the dialog asking the user for"
 	    "their passphrase.  The %@ will be replaced with the filename of a"
 	    "specific key.")) != NULL) &&
 	    (promptTemplate = CFStringCreateCopy(NULL,
-	    CFSTR("Enter your password for the SSH key \"%@\"."))) == NULL) {
+	    CFSTR("Enter your passphrase for the SSH key \"%@\"."))) == NULL) {
 		fprintf(stderr, "CFStringCreateCopy failed\n");
 		goto err;
 	}
