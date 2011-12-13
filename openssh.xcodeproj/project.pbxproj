@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
+		0184964F1497DC1700778DCF /* Install cocoa-ssh-askpass */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 018496511497DC1700778DCF /* Build configuration list for PBXAggregateTarget "Install cocoa-ssh-askpass" */;
+			buildPhases = (
+				018496501497DC1700778DCF /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = "Install cocoa-ssh-askpass";
+			productName = "Install keygen wrapper";
+		};
 		1C4BA62A0FF0548000CA17F7 /* Install manpages */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = 1C4BA6370FF0549F00CA17F7 /* Build configuration list for PBXAggregateTarget "Install manpages" */;
@@ -132,6 +143,7 @@
 			buildPhases = (
 			);
 			dependencies = (
+				018496571497DC8800778DCF /* PBXTargetDependency */,
 				1C76A7D30FF023FF00D35824 /* PBXTargetDependency */,
 				1C76A7D10FF023FF00D35824 /* PBXTargetDependency */,
 				1C76A7CF0FF023FF00D35824 /* PBXTargetDependency */,
@@ -562,6 +574,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		018496561497DC8800778DCF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0184964F1497DC1700778DCF;
+			remoteInfo = "Install cocoa-ssh-askpass";
+		};
 		1C4BA63D0FF05A5100CA17F7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
@@ -2210,11 +2229,26 @@
 				1C7D817910FFC2BE00F0889F /* regression-tests */,
 				1CCA49AB0FF1AD4E0004CEAC /* Install Embedded Items */,
 				1C77BFA3112C99850070F7EE /* testbots */,
+				0184964F1497DC1700778DCF /* Install cocoa-ssh-askpass */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		018496501497DC1700778DCF /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 8;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "\n# Install cocoa-askpass wrapper\nusrbin=\"${DSTROOT}/usr/bin\"\n\ninstall -g \"${INSTALL_GROUP}\" -o \"${INSTALL_OWNER}\" -m 0755 -d \"${usrbin}\"\ninstall -g \"${INSTALL_GROUP}\" -o \"${INSTALL_OWNER}\" -m 0555 \"${SRCROOT}/cocoa-ssh-askpass\" \"${usrbin}/cocoa-ssh-askpass\"\n";
+			showEnvVarsInLog = 0;
+		};
 		1C4BA6290FF0548000CA17F7 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 8;
@@ -2675,6 +2709,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		018496571497DC8800778DCF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0184964F1497DC1700778DCF /* Install cocoa-ssh-askpass */;
+			targetProxy = 018496561497DC8800778DCF /* PBXContainerItemProxy */;
+		};
 		1C4BA63E0FF05A5100CA17F7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 1C4BA62A0FF0548000CA17F7 /* Install manpages */;
@@ -2893,6 +2932,27 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		018496521497DC1700778DCF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "Install keygen wrapper copy";
+			};
+			name = Release;
+		};
+		018496531497DC1700778DCF /* Release-Embedded */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "Install keygen wrapper copy";
+			};
+			name = "Release-Embedded";
+		};
+		018496541497DC1700778DCF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "Install keygen wrapper copy";
+			};
+			name = Debug;
+		};
 		1C4BA62B0FF0548000CA17F7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3144,7 +3204,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "${SOURCE_ROOT}/libutil-25";
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
 				OTHER_CFLAGS = "-fpie";
@@ -3165,6 +3225,7 @@
 					"-lz",
 					"-Wl,-pie",
 				);
+				SDKROOT = macosx10.6;
 			};
 			name = Release;
 		};
@@ -3173,7 +3234,7 @@
 			baseConfigurationReference = 7270879B10363EF200990E81 /* AspenSDK.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "${SOURCE_ROOT}/libutil-25";
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
 				OTHER_CFLAGS = "-DTARGET_OS_EMBEDDED=1";
@@ -3185,6 +3246,7 @@
 					"-lz",
 					"-Wl,-pie",
 				);
+				SDKROOT = macosx10.6;
 			};
 			name = "Release-Embedded";
 		};
@@ -3404,7 +3466,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "${SOURCE_ROOT}/libutil-25";
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
 				ONLY_ACTIVE_ARCH = YES;
@@ -3426,6 +3488,7 @@
 					"-lz",
 					"-Wl,-pie",
 				);
+				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
@@ -3665,6 +3728,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		018496511497DC1700778DCF /* Build configuration list for PBXAggregateTarget "Install cocoa-ssh-askpass" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				018496521497DC1700778DCF /* Release */,
+				018496531497DC1700778DCF /* Release-Embedded */,
+				018496541497DC1700778DCF /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		1C4BA6370FF0549F00CA17F7 /* Build configuration list for PBXAggregateTarget "Install manpages" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
