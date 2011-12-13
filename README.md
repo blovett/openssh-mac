@@ -13,7 +13,7 @@ Run `xcodebuild` from the top directory.
 ### Installing
 `sudo xcodebuild` will install it into `/tmp/openssh.dst` as usual.  Overlay this directory on to `/` with `sudo rsync -av /tmp/openssh.dst/. /.`.  Avoid directly installing into `/` by overriding `DSTROOT` because of some scary recursive `chmod`s and `chown`s that the XCode build script does (from Apple).
 
-Download and install [CocoaDialog](http://mstratman.github.com/cocoadialog/) to `/Applications/Utilities`.  The `cocoa-ssh-askpass` wrapper that is installed to `/usr/bin` will look for CocoaDialog at `/Applications/Utilities/CocoaDialog.app/Contents/MacOS/CocoaDialog`.
+Download and install [CocoaDialog](http://mstratman.github.com/cocoadialog/) to `/Applications/Utilities`.  The `cocoa-ssh-askpass` wrapper that is installed as `/usr/libexec/ssh-askpass` will look for CocoaDialog at `/Applications/Utilities/CocoaDialog.app/Contents/MacOS/CocoaDialog`.
 
 ### Usage
-Once installed, set the `SSH_ASKPASS` environment variable to `/usr/bin/ssh-askpass` in your shell's config file.  At the first SSH connection, the usual secure input window will appear asking for the key passphrase.  Leave the "Remember password in my keychain" option unchecked.  If `RequireKeyConfirmation` is set to `yes`, on the next SSH connection, `cocoa-ssh-askpass` will be invoked to prompt for confirmation. 
+At the first SSH connection, the usual secure input window will appear asking for the key passphrase.  Leave the "Remember password in my keychain" option unchecked.  If `RequireKeyConfirmation` is set to `yes`, on the next SSH connection, `/usr/libexec/ssh-askpass` will be invoked to prompt for confirmation.

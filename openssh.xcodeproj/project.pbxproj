@@ -2246,7 +2246,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "\n# Install cocoa-askpass wrapper\nusrbin=\"${DSTROOT}/usr/bin\"\n\ninstall -g \"${INSTALL_GROUP}\" -o \"${INSTALL_OWNER}\" -m 0755 -d \"${usrbin}\"\ninstall -g \"${INSTALL_GROUP}\" -o \"${INSTALL_OWNER}\" -m 0555 \"${SRCROOT}/cocoa-ssh-askpass\" \"${usrbin}/cocoa-ssh-askpass\"\n";
+			shellScript = "\n# Install cocoa-askpass wrapper\nusrlibexec=\"${DSTROOT}/usr/libexec\"\n\ninstall -g \"${INSTALL_GROUP}\" -o \"${INSTALL_OWNER}\" -m 0755 -d \"${usrlibexec}\"\ninstall -g \"${INSTALL_GROUP}\" -o \"${INSTALL_OWNER}\" -m 0555 \"${SRCROOT}/cocoa-ssh-askpass\" \"${usrlibexec}/ssh-askpass\"\n";
 			showEnvVarsInLog = 0;
 		};
 		1C4BA6290FF0548000CA17F7 /* ShellScript */ = {
