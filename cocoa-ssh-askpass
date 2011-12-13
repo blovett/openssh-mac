@@ -1,0 +1,22 @@
+#!/usr/bin/ruby
+
+require "shellwords"
+
+prompt, keyinfo = ARGV[0].to_s.split("\n", 2)
+
+if prompt && keyinfo
+  IO.popen([
+    "/Applications/Utilities/CocoaDialog.app/Contents/MacOS/CocoaDialog",
+    "ok-msgbox",
+    "--title", "OpenSSH",
+    "--text", Shellwords.escape(prompt),
+    "--informative-text", Shellwords.escape(keyinfo)
+  ].join(" "), "r+") do |p|
+    if p && p.readline.strip.to_i == 1
+      puts "yes"
+      exit
+    end
+  end
+end
+
+puts "no"
