@@ -455,7 +455,7 @@ err:		/* Clean up. */
  * to use ssh-add -K to add their keys to the keychain.
  */
 char *
-keychain_read_passphrase(const char *filename, int oAskPassGUI)
+keychain_read_passphrase(const char *filename, int oAskPassGUI, int oRequireKeyConfirmation)
 {
 
 #if defined(__APPLE_KEYCHAIN__)
@@ -485,6 +485,7 @@ keychain_read_passphrase(const char *filename, int oAskPassGUI)
 	const void *data;
 	AuthenticationConnection *ac = NULL;
 	char *result = NULL;
+	int confirm = 0;
 
 	/* Bail out if KeychainIntegration preference is -bool NO */
 	if (get_boolean_preference("KeychainIntegration", 1, 1) == 0)
@@ -617,12 +618,16 @@ keychain_read_passphrase(const char *filename, int oAskPassGUI)
 		if (noErr != SecPasswordAction(passRef, CFSTR(""), kSecPasswordSet, &length, &data))
 			fprintf(stderr, "Saving password to keychain failed\n");
 
+		 if (get_boolean_preference("RequireKeyConfirmation", 0, 1) == 1
+		 || oRequireKeyConfirmation == 1)
+		 	confirm = 1;
+
 		/* Add password to agent. */
 		char *comment = NULL;
 		Key *private = key_load_private(filename, result, &comment);
 		if (NULL == private)
 			break;
-		if (ssh_add_identity_constrained(ac, private, comment, 0, 0))
+		if (ssh_add_identity_constrained(ac, private, comment, 0, confirm))
 			fprintf(stderr, "Identity added: %s (%s)\n", filename, comment);
 		else
 			fprintf(stderr, "Could not add identity: %s\n", filename);

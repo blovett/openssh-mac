@@ -133,7 +133,8 @@ typedef struct {
 	int	visual_host_key;
 
 #ifdef __APPLE_KEYCHAIN__
-	int ask_pass_gui;
+	int	ask_pass_gui;
+	int	require_key_confirmation;
 #endif
 	int	use_roaming;
 

@@ -1387,7 +1387,8 @@ load_identity_file(char *filename)
 		    "Enter passphrase for key '%.100s': ", filename);
 		for (i = 0; i < options.number_of_password_prompts; i++) {
 #ifdef __APPLE_KEYCHAIN__
-			passphrase = keychain_read_passphrase(filename, options.ask_pass_gui);
+			passphrase = keychain_read_passphrase(filename, options.ask_pass_gui,
+			    options.require_key_confirmation);
 			if (passphrase == NULL)
 #endif
 			passphrase = read_passphrase(prompt, 0);

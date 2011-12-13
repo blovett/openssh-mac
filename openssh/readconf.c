@@ -135,7 +135,7 @@ typedef enum {
 	oTunnel, oTunnelDevice, oLocalCommand, oPermitLocalCommand,
 	oVisualHostKey, oUseRoaming, oZeroKnowledgePasswordAuthentication,
 #ifdef __APPLE_KEYCHAIN__
-	oAskPassGUI,
+	oAskPassGUI, oRequireKeyConfirmation,
 #endif
 	oDeprecated, oUnsupported
 } OpCodes;
@@ -256,6 +256,7 @@ static struct {
 #endif
 #ifdef __APPLE_KEYCHAIN__
 	{ "askpassgui", oAskPassGUI },
+	{ "requirekeyconfirmation", oRequireKeyConfirmation },
 #endif
 	{ NULL, oBadOption }
 };
@@ -1000,6 +1001,10 @@ parse_int:
 	case oAskPassGUI:
 		intptr = &options->ask_pass_gui;
 		goto parse_flag;
+
+	case oRequireKeyConfirmation:
+		intptr = &options->require_key_confirmation;
+		goto parse_flag;
 #endif
 
 	case oUseRoaming:
@@ -1170,6 +1175,7 @@ initialize_options(Options * options)
 	options->zero_knowledge_password_authentication = -1;
 #ifdef __APPLE_KEYCHAIN__
 	options->ask_pass_gui = -1;
+	options->require_key_confirmation = -1;
 #endif
 }
 
@@ -1326,6 +1332,8 @@ fill_default_options(Options * options)
 #ifdef __APPLE_KEYCHAIN__
 	if (options->ask_pass_gui == -1)
 		options->ask_pass_gui = 1;
+	if (options->require_key_confirmation == -1)
+		options->require_key_confirmation = 0;
 #endif
 	/* options->local_command should not be set by default */
 	/* options->proxy_command should not be set by default */

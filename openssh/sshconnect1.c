@@ -262,7 +262,8 @@ try_rsa_authentication(int idx)
 		    "Enter passphrase for RSA key '%.100s': ", comment);
 		for (i = 0; i < options.number_of_password_prompts; i++) {
 #ifdef __APPLE_KEYCHAIN__
-			passphrase = keychain_read_passphrase(comment, options.ask_pass_gui);
+			passphrase = keychain_read_passphrase(comment, options.ask_pass_gui,
+			    options.require_key_confirmation);
 			if (passphrase == NULL)
 #endif
 			passphrase = read_passphrase(buf, 0);
