@@ -11,7 +11,7 @@ More information about agent confirmation can be read at [http://jcs.org/macssh]
 Run `xcodebuild` from the top directory.
 
 ### Installing
-`sudo xcodebuild` will install it into `/tmp/openssh.dst` as usual.  Overlay this directory on to `/` with `sudo rsync -av /tmp/openssh.dst/. /.`.  Avoid directly installing into `/` by overriding `DSTROOT` because of some scary recursive `chmod`s and `chown`s that the XCode build script does (from Apple).
+`sudo xcodebuild install` will install it into `/tmp/openssh.dst` as usual.  Overlay this directory on to `/` with `sudo rsync -av /tmp/openssh.dst/. /.`.  Avoid directly installing into `/` by overriding `DSTROOT` because of some scary recursive `chmod`s and `chown`s that the XCode build script does (from Apple).
 
 Download and install [CocoaDialog](http://mstratman.github.com/cocoadialog/) to `/Applications/Utilities`.  The `cocoa-ssh-askpass` wrapper that is installed as `/usr/libexec/ssh-askpass` will look for CocoaDialog at `/Applications/Utilities/CocoaDialog.app/Contents/MacOS/CocoaDialog`.
 
