@@ -29,6 +29,7 @@
 #include "buffer.h"
 #include <openssl/rsa.h>
 #include <openssl/dsa.h>
+#include <openssl/x509.h>
 
 typedef struct Key Key;
 enum types {
@@ -74,6 +75,7 @@ struct Key {
 	int	 flags;
 	RSA	*rsa;
 	DSA	*dsa;
+	X509    *x509;
 	struct KeyCert *cert;
 };
 

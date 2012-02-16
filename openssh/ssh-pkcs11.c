@@ -59,7 +59,7 @@ struct pkcs11_provider {
 	TAILQ_ENTRY(pkcs11_provider) next;
 };
 
-TAILQ_HEAD(, pkcs11_provider) pkcs11_providers;
+TAILQ_HEAD(, pkcs11_provider) pkcs11_providers = TAILQ_HEAD_INITIALIZER(pkcs11_providers);
 
 struct pkcs11_key {
 	struct pkcs11_provider	*provider;
@@ -71,6 +71,8 @@ struct pkcs11_key {
 };
 
 int pkcs11_interactive = 0;
+int 
+pkcs11_check_session ( struct pkcs11_provider *p, CK_ULONG slotidx);
 
 int
 pkcs11_init(int interactive)
@@ -252,8 +254,15 @@ pkcs11_rsa_private_encrypt(int flen, const u_char *from, u_char *to, RSA *rsa,
 		error("no pkcs11 (valid) provider for rsa %p", rsa);
 		return (-1);
 	}
+    
+    if ( pkcs11_check_session(k11->provider, k11->slotidx ))
+    {
+        error ( "Invalid session" );
+    }
+   
 	f = k11->provider->function_list;
 	si = &k11->provider->slotinfo[k11->slotidx];
+
 	if ((si->token.flags & CKF_LOGIN_REQUIRED) && !si->logged_in) {
 		if (!pkcs11_interactive) {
 			error("need pin");
@@ -277,7 +286,8 @@ pkcs11_rsa_private_encrypt(int flen, const u_char *from, u_char *to, RSA *rsa,
 	key_filter[1].ulValueLen = k11->keyid_len;
 	/* try to find object w/CKA_SIGN first, retry w/o */
 	if (pkcs11_find(k11->provider, k11->slotidx, key_filter, 3, &obj) < 0 &&
-	    pkcs11_find(k11->provider, k11->slotidx, key_filter, 2, &obj) < 0) {
+	    pkcs11_find(k11->provider, k11->slotidx, key_filter, 2, &obj) < 0 &&
+            pkcs11_find(k11->provider, k11->slotidx, key_filter, 1, &obj) < 0) {
 		error("cannot find private key");
 	} else if ((rv = f->C_SignInit(si->session, &mech, obj)) != CKR_OK) {
 		error("C_SignInit failed: %lu", rv);
@@ -342,6 +352,8 @@ rmspace(char *buf, size_t len)
 			break;
 }
 
+        
+
 /*
  * open a pkcs11 session and login if required.
  * if pin == NULL we delay login until key use
@@ -379,6 +391,24 @@ pkcs11_open_session(struct pkcs11_provider *p, CK_ULONG slotidx, char *pin)
 	p->slotinfo[slotidx].session = session;
 	return (0);
 }
+int 
+pkcs11_check_session ( struct pkcs11_provider *p, CK_ULONG slotidx)
+{
+    CK_SESSION_INFO session_info;
+    CK_FUNCTION_LIST	*f;
+    char *pin = 
+    f = p->function_list;
+    
+    if ( f->C_GetSessionInfo ( p->slotinfo[slotidx].session, &session_info ) != CKR_OK )
+    {
+      //  p->slotinfo[slotidx].is_logged_in = 0;
+#ifdef __APPLE_KEYCHAIN__
+        char *passphrase = keychain_read_passphrase(p->name, true);
+#endif
+        return pkcs11_open_session (p, slotidx, passphrase );
+    }
+    return 0;
+}
 
 /*
  * lookup public keys for token in slot identified by slotidx,
@@ -391,6 +421,7 @@ pkcs11_fetch_keys(struct pkcs11_provider *p, CK_ULONG slotidx, Key ***keysp,
 {
 	Key			*key;
 	RSA			*rsa;
+	X509 			*x509;
 	int			i;
 	CK_RV			rv;
 	CK_OBJECT_HANDLE	obj;
@@ -398,18 +429,28 @@ pkcs11_fetch_keys(struct pkcs11_provider *p, CK_ULONG slotidx, Key ***keysp,
 	CK_SESSION_HANDLE	session;
 	CK_FUNCTION_LIST	*f;
 	CK_OBJECT_CLASS		pubkey_class = CKO_PUBLIC_KEY;
+	CK_OBJECT_CLASS		cert_class = CKO_CERTIFICATE;
 	CK_ATTRIBUTE		pubkey_filter[] = {
 		{ CKA_CLASS, NULL, sizeof(pubkey_class) }
+	};
+	CK_ATTRIBUTE		cert_filter[] = {
+		{ CKA_CLASS, NULL, sizeof(cert_class) }
 	};
 	CK_ATTRIBUTE		attribs[] = {
 		{ CKA_ID, NULL, 0 },
 		{ CKA_MODULUS, NULL, 0 },
 		{ CKA_PUBLIC_EXPONENT, NULL, 0 }
 	};
+	CK_ATTRIBUTE attribs_cert[] = {
+		{ CKA_ID, NULL, 0 },
+		{ CKA_SUBJECT, NULL, 0 },
+		{ CKA_VALUE, NULL, 0 },
+	};
 
 	/* some compilers complain about non-constant initializer so we
 	   use NULL in CK_ATTRIBUTE above and set the value here */
 	pubkey_filter[0].pValue = &pubkey_class;
+	cert_filter[0].pValue = &cert_class;
 
 	f = p->function_list;
 	session = p->slotinfo[slotidx].session;
@@ -471,6 +512,84 @@ pkcs11_fetch_keys(struct pkcs11_provider *p, CK_ULONG slotidx, Key ***keysp,
 		}
 		for (i = 0; i < 3; i++)
 			xfree(attribs[i].pValue);
+	}
+	if ((rv = f->C_FindObjectsFinal(session)) != CKR_OK)
+		error("C_FindObjectsFinal failed: %lu", rv);
+
+	debug("Search X509");
+	f = p->function_list;
+	session = p->slotinfo[slotidx].session;
+	/* setup a filter the looks for certificates */
+	if ((rv = f->C_FindObjectsInit(session, cert_filter, 1)) != CKR_OK) {
+		error("C_FindObjectsInit failed: %lu", rv);
+		return (-1);
+	}
+	while (1) {
+		/* XXX 3 attributes in attribs[] */
+		for (i = 0; i < 3; i++) {
+			attribs_cert[i].pValue = NULL;
+			attribs_cert[i].ulValueLen = 0;
+		}
+		if ((rv = f->C_FindObjects(session, &obj, 1, &nfound)) != CKR_OK
+		    || nfound == 0)
+			break;
+		/* found a key, so figure out size of the attributes */
+		if ((rv = f->C_GetAttributeValue(session, obj, attribs_cert, 3))
+		    != CKR_OK) {
+			error("C_GetAttributeValue failed: %lu", rv);
+			continue;
+		}
+		/* check that none of the attributes are zero length */
+		if (attribs_cert[0].ulValueLen == 0 ||
+		    attribs_cert[1].ulValueLen == 0 ||
+		    attribs_cert[2].ulValueLen == 0) {
+			continue;
+		}
+		/* allocate buffers for attributes */
+		for (i = 0; i < 3; i++)
+			attribs_cert[i].pValue = xmalloc(attribs_cert[i].ulValueLen);
+		/* retrieve LABEL, SUBJECT and VALUE of X509 cert */
+		if ((rv = f->C_GetAttributeValue(session, obj, attribs_cert, 3))
+		    != CKR_OK) {
+			error("C_GetAttributeValue failed: %lu", rv);
+		} else if ((x509 = X509_new()) == NULL) {
+			error("X509_new failed");
+		} else {
+
+			CK_BYTE_PTR der_value;
+			CK_BYTE_PTR ptr;
+			CK_ULONG n_der_value;
+			EVP_PKEY *pubkey = NULL;
+
+			n_der_value = attribs_cert[2].ulValueLen;
+			ptr = attribs_cert[2].pValue;
+			x509 = d2i_X509(NULL, (const unsigned char**)&ptr, n_der_value);
+			if(x509 == NULL) {
+				debug("CKA_VALUE:Error");
+			} else {
+				//PEM_write_X509(stdout, x509);
+				pubkey = X509_get_pubkey(x509);
+				rsa = pubkey->pkey.rsa;
+
+				if (rsa->n && rsa->e &&
+				    pkcs11_rsa_wrap(p, slotidx, &attribs_cert[0], rsa) == 0) {
+					key = key_new(KEY_UNSPEC);
+					key->rsa = rsa;
+					key->type = KEY_RSA;
+					key->flags |= KEY_FLAG_EXT;
+					/* expand key array and add key */
+					*keysp = xrealloc(*keysp, *nkeys + 1,
+					    sizeof(Key *));
+					(*keysp)[*nkeys] = key;
+					*nkeys = *nkeys + 1;
+					debug("have %d x509 keys", *nkeys);
+				} else {
+					RSA_free(rsa);
+				}
+			}
+		}
+		for (i = 0; i < 3; i++)
+			xfree(attribs_cert[i].pValue);
 	}
 	if ((rv = f->C_FindObjectsFinal(session)) != CKR_OK)
 		error("C_FindObjectsFinal failed: %lu", rv);

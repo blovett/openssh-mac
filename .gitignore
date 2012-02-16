@@ -1,0 +1,4 @@
+.DS_Store
+build
+openssh.xcodeproj/project.xcworkspace
+openssh.xcodeproj/xcuserdata
