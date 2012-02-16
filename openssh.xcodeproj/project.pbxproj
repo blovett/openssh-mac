@@ -571,6 +571,9 @@
 		1CC368470FF02CD6009818B0 /* sftp-server.c in Sources */ = {isa = PBXBuildFile; fileRef = 1C6B2F370FEC5E93004F1935 /* sftp-server.c */; };
 		1CC3684A0FF02D09009818B0 /* progressmeter.c in Sources */ = {isa = PBXBuildFile; fileRef = 1C6B2F1D0FEC5CFE004F1935 /* progressmeter.c */; };
 		1CC3686F0FF02FE3009818B0 /* sftp-common.c in Sources */ = {isa = PBXBuildFile; fileRef = 1C6B2F350FEC5E93004F1935 /* sftp-common.c */; };
+		B57AA55014ED8C0D0051BCAF /* ssh-pkcs11.c in Sources */ = {isa = PBXBuildFile; fileRef = 1C919EDB1162C3E4002924A5 /* ssh-pkcs11.c */; };
+		B57AA55114ED8DB00051BCAF /* ssh-pkcs11.c in Sources */ = {isa = PBXBuildFile; fileRef = 1C919EDB1162C3E4002924A5 /* ssh-pkcs11.c */; };
+		B57AA55214ED8E190051BCAF /* keychain.c in Sources */ = {isa = PBXBuildFile; fileRef = 1C6B2F240FEC5D46004F1935 /* keychain.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2550,6 +2553,7 @@
 				1C6B2FEB0FEFFB7A004F1935 /* msg.c in Sources */,
 				1C6B2FF00FEFFB7A004F1935 /* schnorr.c in Sources */,
 				1C6B2FF10FEFFB7A004F1935 /* umac.c in Sources */,
+				B57AA55014ED8C0D0051BCAF /* ssh-pkcs11.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2639,6 +2643,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B57AA55214ED8E190051BCAF /* keychain.c in Sources */,
+				B57AA55114ED8DB00051BCAF /* ssh-pkcs11.c in Sources */,
 				1C982D9110925D4A00C0E559 /* roaming_common.c in Sources */,
 				1C919F111162C708002924A5 /* roaming_serv.c in Sources */,
 				1C6B2F2F0FEC5E18004F1935 /* ssh-keygen.c in Sources */,
@@ -3207,7 +3213,10 @@
 				HEADER_SEARCH_PATHS = "${SOURCE_ROOT}/libutil-25";
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
-				OTHER_CFLAGS = "-fpie";
+				OTHER_CFLAGS = (
+					"-DENABLE_PKCS11",
+					"-fpie",
+				);
 				OTHER_LDFLAGS = "";
 				"OTHER_LDFLAGS[sdk=macosx*][arch=*]" = (
 					"-framework",
@@ -3470,7 +3479,10 @@
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = "-fpie";
+				OTHER_CFLAGS = (
+					"-DENABLE_PKCS11",
+					"-fpie",
+				);
 				OTHER_LDFLAGS = "";
 				"OTHER_LDFLAGS[sdk=macosx*][arch=*]" = (
 					"-framework",
