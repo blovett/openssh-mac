@@ -1181,7 +1181,7 @@
 #define LASTLOG_WRITE_PUTUTXLINE 1
 
 /* Define if you want TCP Wrappers support */
-#define LIBWRAP 1
+#undef LIBWRAP
 
 /* Define to whatever link() returns for "not supported" if it doesn't return
    EOPNOTSUPP. */

@@ -3230,7 +3230,6 @@
 					"-lbsm",
 					"-lcrypto",
 					"-lpam",
-					"-lwrap",
 					"-lz",
 					"-Wl,-pie",
 				);
@@ -3496,7 +3495,6 @@
 					"-lbsm",
 					"-lcrypto",
 					"-lpam",
-					"-lwrap",
 					"-lz",
 					"-Wl,-pie",
 				);
